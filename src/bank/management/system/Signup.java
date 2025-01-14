@@ -4,8 +4,13 @@ import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
-public class Signup extends JFrame {
+public class Signup extends JFrame implements ActionListener {
 
     // Declare text fields and date chooser
     JTextField textName, textFName, textEmail, textAdd, textCity, textPostal;
@@ -146,7 +151,6 @@ public class Signup extends JFrame {
         add(textCity);
 
         // Code Postal label and text field
-
         JLabel labelPostal = new JLabel("Code Postal :");
         labelPostal.setFont(new Font("Raleway", Font.BOLD, 20));
         labelPostal.setForeground(Color.WHITE);
@@ -164,17 +168,8 @@ public class Signup extends JFrame {
         next.setBackground(Color.WHITE);
         next.setForeground(Color.BLACK);
         next.setBounds(650, 650, 100, 30);
+        next.addActionListener(this);
         add(next);
-
-
-
-
-
-
-
-
-
-
 
         // Configure the frame
         setSize(850, 800);
@@ -182,6 +177,42 @@ public class Signup extends JFrame {
         setLayout(null);
         getContentPane().setBackground(Color.BLACK);
         setVisible(true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String name = textName.getText();
+        String fName = textFName.getText();
+        String dobString = ((JTextField) dateChooser.getDateEditor().getUiComponent()).getText();
+        String gender = null;
+        if (r1.isSelected()) {
+            gender = "Homme";
+        } else if (r2.isSelected()) {
+            gender = "Femme";
+        }
+
+        String email = textEmail.getText();
+        String address = textAdd.getText();
+        String city = textCity.getText();
+        String postal = textPostal.getText();
+
+        try {
+            if (name.equals("") || fName.equals("") || dobString.equals("") || email.equals("") || address.equals("") || city.equals("") || postal.equals("")) {
+                JOptionPane.showMessageDialog(null, "Veuillez remplir tous les champs");
+            } else {
+                // Convert dobString to java.sql.Date with French locale
+                SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.FRENCH);
+                java.util.Date utilDate = sdf.parse(dobString);
+                java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+
+                // Save the data to the database
+                sqlcon c1 = new sqlcon();
+                String q1 = "insert into signup (name, fName, dob, gender, email, address, city, postal) values('" + name + "','" + fName + "','" + sqlDate + "','" + gender + "','" + email + "','" + address + "','" + city + "','" + postal + "')";
+                c1.statement.executeUpdate(q1);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
