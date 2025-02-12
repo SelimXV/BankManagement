@@ -80,7 +80,7 @@ public class Signup extends JFrame implements ActionListener {
         JLabel DOB = new JLabel("Date de Naissance :");
         DOB.setFont(new Font("Raleway", Font.BOLD, 20));
         DOB.setForeground(Color.WHITE);
-        DOB.setBounds(100, 300, 200, 30);
+        DOB.setBounds(90, 300, 250, 30);
         add(DOB);
 
         dateChooser = new JDateChooser();

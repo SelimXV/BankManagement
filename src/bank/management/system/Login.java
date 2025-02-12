@@ -30,7 +30,7 @@ public class Login extends JFrame implements ActionListener {
 
         l1 = new JLabel("Bienvenue sur l'ATM");
         l1.setFont(new Font("Osward", Font.BOLD, 30));
-        l1.setForeground(Color.WHITE);
+        l1.setForeground(Color.CYAN);
         l1.setBounds(270, 125, 450, 40);
         add(l1);
 
@@ -56,8 +56,11 @@ public class Login extends JFrame implements ActionListener {
 
 
         b1= new JButton("S'INSCRIRE");
-        b1.setBackground(Color.BLACK);
+
+        b1.setBackground(Color.red);
         b1.setForeground(Color.WHITE);
+        b1.setOpaque(true);
+        b1.setBorderPainted(false);
         b1.setBounds(340, 300, 100, 30);
         b1.addActionListener(this);
         add(b1);
@@ -65,6 +68,8 @@ public class Login extends JFrame implements ActionListener {
         b2 = new JButton("EFFACER");
         b2.setBackground(Color.BLACK);
         b2.setForeground(Color.WHITE);
+        b2.setOpaque(true);
+        b2.setBorderPainted(false);
         b2.setBounds(460, 300, 100, 30);
         b2.addActionListener(this);
         add(b2);
@@ -72,16 +77,11 @@ public class Login extends JFrame implements ActionListener {
         b3 = new JButton("SE CONNECTER");
         b3.setBackground(Color.BLACK);
         b3.setForeground(Color.WHITE);
+        b3.setOpaque(true);
+        b3.setBorderPainted(false);
         b3.setBounds(340, 350, 220, 30);
         b3.addActionListener(this);
         add(b3);
-
-
-
-
-
-
-
 
 
 
@@ -97,12 +97,17 @@ public class Login extends JFrame implements ActionListener {
         setLocation(450, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+
+
     }
 
     @Override
     public void actionPerformed(ActionEvent e){
         try {
             if (e.getSource() == b1) {
+                new Signup();
+                setVisible(false);
+
 
             } else if (e.getSource()==b2) {
                 cardNumberField.setText("");
