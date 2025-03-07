@@ -2,31 +2,22 @@ package bank.management.system;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.sql.ResultSet;
 
 public class Login extends JFrame implements ActionListener {
     JLabel l1, l2, l3;
     JTextField cardNumberField;
     JPasswordField pinField;
-    JButton b1, b2, b3;
+    JButton signupButton, clearButton, loginButton;
 
-    Login() {
-        setTitle("Bank Management System");
-
-        ImageIcon icon1 = new ImageIcon(ClassLoader.getSystemResource("icon/bank.png"));
-        Image img1 = icon1.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT);
-        ImageIcon scaledIcon1 = new ImageIcon(img1);
-        JLabel label1 = new JLabel(scaledIcon1);
-        label1.setBounds((850 - 100) / 2, 10, 100, 100);
-        add(label1);
-
-        ImageIcon icon3 = new ImageIcon(ClassLoader.getSystemResource("icon/card.png"));
-        Image img3 = icon3.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT);
-        ImageIcon scaledIcon3 = new ImageIcon(img3);
-        JLabel label3 = new JLabel(scaledIcon3);
-        label3.setBounds(650, 340, 100, 100);
-        add(label3);
+    public Login() {
+        setTitle("Bank Management System - Login");
+        setLayout(null);
+        setSize(850, 480);
+        setLocation(450, 200);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        getContentPane().setBackground(Color.BLACK);
 
         l1 = new JLabel("Bienvenue sur l'ATM");
         l1.setFont(new Font("Osward", Font.BOLD, 30));
@@ -54,72 +45,66 @@ public class Login extends JFrame implements ActionListener {
         pinField.setBounds(350, 260, 200, 30);
         add(pinField);
 
+        signupButton = new JButton("S'INSCRIRE");
+        signupButton.setBackground(Color.RED);
+        signupButton.setForeground(Color.WHITE);
+        signupButton.setBounds(340, 300, 120, 30);
+        signupButton.addActionListener(this);
+        add(signupButton);
 
-        b1= new JButton("S'INSCRIRE");
+        clearButton = new JButton("EFFACER");
+        clearButton.setBackground(Color.BLACK);
+        clearButton.setForeground(Color.WHITE);
+        clearButton.setBounds(460, 300, 100, 30);
+        clearButton.addActionListener(this);
+        add(clearButton);
 
-        b1.setBackground(Color.red);
-        b1.setForeground(Color.WHITE);
-        b1.setOpaque(true);
-        b1.setBorderPainted(false);
-        b1.setBounds(340, 300, 120, 30);
-        b1.addActionListener(this);
-        add(b1);
+        loginButton = new JButton("SE CONNECTER");
+        loginButton.setBackground(Color.BLACK);
+        loginButton.setForeground(Color.WHITE);
+        loginButton.setBounds(340, 350, 220, 30);
+        loginButton.addActionListener(this);
+        add(loginButton);
 
-        b2 = new JButton("EFFACER");
-        b2.setBackground(Color.BLACK);
-        b2.setForeground(Color.WHITE);
-        b2.setOpaque(true);
-        b2.setBorderPainted(false);
-        b2.setBounds(460, 300, 100, 30);
-        b2.addActionListener(this);
-        add(b2);
-
-        b3 = new JButton("SE CONNECTER");
-        b3.setBackground(Color.BLACK);
-        b3.setForeground(Color.WHITE);
-        b3.setOpaque(true);
-        b3.setBorderPainted(false);
-        b3.setBounds(340, 350, 220, 30);
-        b3.addActionListener(this);
-        add(b3);
-
-
-
-        ImageIcon icon2 = new ImageIcon(ClassLoader.getSystemResource("icon/arriereplan.jpg"));
-        Image img2 = icon2.getImage().getScaledInstance(850, 480, Image.SCALE_DEFAULT);
-        ImageIcon scaledIcon2 = new ImageIcon(img2);
-        JLabel label2 = new JLabel(scaledIcon2);
-        label2.setBounds(0, 0, 850, 480);
-        add(label2);
+        // Exemple d'ajout d'un arrière-plan (optionnel)
+        ImageIcon icon = new ImageIcon(ClassLoader.getSystemResource("icon/arriereplan.jpg"));
+        Image img = icon.getImage().getScaledInstance(850, 480, Image.SCALE_DEFAULT);
+        ImageIcon scaledIcon = new ImageIcon(img);
+        JLabel background = new JLabel(scaledIcon);
+        background.setBounds(0, 0, 850, 480);
+        add(background);
 
         setLayout(null);
-        setSize(850, 480);
-        setLocation(450, 200);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
-
-
     }
 
     @Override
-    public void actionPerformed(ActionEvent e){
-        try {
-            if (e.getSource() == b1) {
-                new Signup();
-                setVisible(false);
-
-
-            } else if (e.getSource()==b2) {
-                cardNumberField.setText("");
-                pinField.setText("");
-            } else if (e.getSource()==b3) {
-
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == signupButton) {
+            new Signup();
+            setVisible(false);
+        } else if (e.getSource() == clearButton) {
+            cardNumberField.setText("");
+            pinField.setText("");
+        } else if (e.getSource() == loginButton) {
+            String cardNumber = cardNumberField.getText();
+            String pin = new String(pinField.getPassword());
+            try {
+                sqlcon c = new sqlcon();
+                String query = "SELECT * FROM account WHERE card_number = '" + cardNumber + "' AND pin = '" + pin + "'";
+                ResultSet rs = c.statement.executeQuery(query);
+                if (rs.next()) {
+                    JOptionPane.showMessageDialog(null, "Connexion réussie !");
+                    // Par exemple, ouvrir la fenêtre Transactions (à adapter selon ton code)
+                    new Accueil(cardNumber);
+                    setVisible(false);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Numéro de carte ou PIN incorrect !");
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
-
     }
 
     public static void main(String[] args) {
