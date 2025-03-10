@@ -8,106 +8,126 @@ public class Accueil extends JFrame {
 
     String cardNumber;
     JLabel balanceLabel;
-    JButton depositButton, logoutButton, WithdrawButton, AccountInfoButton, historyButton;
+    JButton depositButton, withdrawButton, accountInfoButton, historyButton, logoutButton;
 
     public Accueil(String cardNumber) {
         this.cardNumber = cardNumber;
 
         setTitle("Transactions - Espace Bancaire");
-        setSize(850, 480);
-        setLocation(450, 200);
+        setSize(850, 630);
+        setLocation(350, 40);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);
-        getContentPane().setBackground(Color.WHITE);
+        
+        // Fond avec image de banque
+        ImageIcon backgroundIcon = new ImageIcon(ClassLoader.getSystemResource("icon/backbg.png"));
+        Image backgroundImage = backgroundIcon.getImage().getScaledInstance(850, 630, Image.SCALE_DEFAULT);
+        ImageIcon scaledBackground = new ImageIcon(backgroundImage);
+        JLabel backgroundLabel = new JLabel(scaledBackground);
+        backgroundLabel.setBounds(0, 0, 850, 630);
+        
+        // Ajout de l'icône de banque
+        ImageIcon bankIcon = new ImageIcon(ClassLoader.getSystemResource("icon/bank.png"));
+        Image scaledBankImage = bankIcon.getImage().getScaledInstance(80, 80, Image.SCALE_DEFAULT);
+        ImageIcon scaledBankIcon = new ImageIcon(scaledBankImage);
+        JLabel bankIconLabel = new JLabel(scaledBankIcon);
+        bankIconLabel.setBounds(50, 30, 80, 80);
+        add(bankIconLabel);
+
+        // Panneau principal semi-transparent
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(null);
+        mainPanel.setBounds(180, 120, 500, 430);
+        mainPanel.setBackground(new Color(0, 0, 0, 180));
+        add(mainPanel);
 
         // Message de bienvenue
-        JLabel welcomeLabel = new JLabel("Bienvenue dans votre espace bancaire !");
+        JLabel welcomeLabel = new JLabel("Bienvenue dans votre espace bancaire");
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        welcomeLabel.setBounds(200, 50, 500, 50);
-        add(welcomeLabel);
+        welcomeLabel.setForeground(Color.WHITE);
+        welcomeLabel.setBounds(40, 20, 450, 40);
+        mainPanel.add(welcomeLabel);
 
         // Affichage du numéro de carte
         JLabel cardLabel = new JLabel("Numéro de carte : " + cardNumber);
-        cardLabel.setFont(new Font("Arial", Font.PLAIN, 18));
-        cardLabel.setBounds(200, 100, 500, 30);
-        add(cardLabel);
+        cardLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        cardLabel.setForeground(Color.WHITE);
+        cardLabel.setBounds(40, 70, 400, 30);
+        mainPanel.add(cardLabel);
 
         // Récupérer et afficher le solde
         balanceLabel = new JLabel("Solde : Chargement...");
         balanceLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        balanceLabel.setBounds(200, 150, 300, 30);
-        add(balanceLabel);
+        balanceLabel.setForeground(Color.CYAN);
+        balanceLabel.setBounds(40, 110, 300, 30);
+        mainPanel.add(balanceLabel);
         updateBalance();
 
-        // Bouton pour accéder à la page Deposit
-        depositButton = new JButton("DÉPÔT");
-        depositButton.setFont(new Font("Arial", Font.BOLD, 16));
-        depositButton.setBackground(new Color(0, 102, 204)); // Bleu
-        depositButton.setForeground(Color.WHITE);
-        depositButton.setOpaque(true);
-        depositButton.setBorderPainted(false);
-        depositButton.setBounds(350, 200, 150, 40);
+        // Ligne de séparation
+        JSeparator separator = new JSeparator();
+        separator.setBounds(40, 150, 420, 2);
+        separator.setForeground(Color.GRAY);
+        mainPanel.add(separator);
+
+        // Boutons avec design harmonisé
+        // Bouton DÉPÔT
+        depositButton = createStyledButton("DÉPÔT", new Color(0, 102, 204), 40, 180, 420, 40);
         depositButton.addActionListener(e -> {
             new Deposit(cardNumber).setVisible(true);
             setVisible(false);
         });
-        add(depositButton);
+        mainPanel.add(depositButton);
 
-        WithdrawButton = new JButton("RETRAIT");
-        WithdrawButton.setFont(new Font("Arial", Font.BOLD, 16));
-        WithdrawButton.setBackground(new Color(0, 102, 204)); // Bleu
-        WithdrawButton.setForeground(Color.WHITE);
-        WithdrawButton.setOpaque(true);
-        WithdrawButton.setBorderPainted(false);
-        WithdrawButton.setBounds(350, 240, 150, 40);
-        WithdrawButton.addActionListener(e -> {
+        // Bouton RETRAIT
+        withdrawButton = createStyledButton("RETRAIT", new Color(0, 102, 204), 40, 230, 420, 40);
+        withdrawButton.addActionListener(e -> {
             new Withdraw(cardNumber).setVisible(true);
             setVisible(false);
         });
-        add(WithdrawButton);
+        mainPanel.add(withdrawButton);
 
-        // Bouton "Infos du compte"
-        AccountInfoButton = new JButton("Infos du compte");
-        AccountInfoButton.setFont(new Font("Arial", Font.BOLD, 16));
-        AccountInfoButton.setBackground(new Color(51, 51, 51)); // Gris foncé
-        AccountInfoButton.setForeground(Color.WHITE);
-        AccountInfoButton.setOpaque(true);
-        AccountInfoButton.setBorderPainted(false);
-        AccountInfoButton.setBounds(350, 280, 150, 40);
-        AccountInfoButton.addActionListener(e -> {
+        // Bouton INFOS DU COMPTE
+        accountInfoButton = createStyledButton("INFOS DU COMPTE", new Color(51, 51, 51), 40, 280, 420, 40);
+        accountInfoButton.addActionListener(e -> {
             new AccountInfo(cardNumber).setVisible(true);
             setVisible(false);
         });
-        add(AccountInfoButton);
+        mainPanel.add(accountInfoButton);
 
-        // Bouton "Historique des transactions"
-        historyButton = new JButton("Historique");
-        historyButton.setFont(new Font("Arial", Font.BOLD, 16));
-        historyButton.setBackground(new Color(51, 51, 51)); // Gris foncé
-        historyButton.setForeground(Color.WHITE);
-        historyButton.setOpaque(true);
-        historyButton.setBorderPainted(false);
-        historyButton.setBounds(350, 360, 150, 40);
+        // Bouton HISTORIQUE
+        historyButton = createStyledButton("HISTORIQUE", new Color(51, 51, 51), 40, 330, 420, 40);
         historyButton.addActionListener(e -> {
             new TransactionHistory(cardNumber).setVisible(true);
         });
-        add(historyButton);
+        mainPanel.add(historyButton);
 
-        // Bouton de déconnexion
-        logoutButton = new JButton("Déconnexion");
-        logoutButton.setFont(new Font("Arial", Font.BOLD, 16));
-        logoutButton.setBackground(new Color(204, 0, 0)); // Rouge foncé
-        logoutButton.setForeground(Color.WHITE);
-        logoutButton.setOpaque(true);
-        logoutButton.setBorderPainted(false);
-        logoutButton.setBounds(350, 400, 150, 40);
+        // Bouton DÉCONNEXION
+        logoutButton = createStyledButton("DÉCONNEXION", new Color(204, 0, 0), 40, 380, 420, 40);
         logoutButton.addActionListener(e -> {
             new Login();
             setVisible(false);
         });
-        add(logoutButton);
+        mainPanel.add(logoutButton);
 
+        // Ajout de l'arrière-plan en dernier pour qu'il soit derrière tous les éléments
+        add(backgroundLabel);
+
+        setResizable(false);
         setVisible(true);
+    }
+
+    // Méthode pour créer des boutons stylisés
+    private JButton createStyledButton(String text, Color bgColor, int x, int y, int width, int height) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setBackground(bgColor);
+        button.setForeground(Color.WHITE);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setOpaque(true);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setBounds(x, y, width, height);
+        return button;
     }
 
     private void updateBalance() {

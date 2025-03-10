@@ -6,10 +6,11 @@ import java.awt.event.*;
 import java.sql.ResultSet;
 
 public class Login extends JFrame implements ActionListener {
-    JLabel l1, l2, l3;
+    
     JTextField cardNumberField;
     JPasswordField pinField;
     JButton signupButton, clearButton, loginButton;
+    JLabel welcomeLabel;
 
     private static final String ADMIN_CARD = "192837465";
     private static final String ADMIN_PIN = "3482";
@@ -18,75 +19,145 @@ public class Login extends JFrame implements ActionListener {
 
     public Login() {
         setTitle("Bank Management System - Login");
-        setLayout(null);
         setSize(850, 480);
-        setLocation(450, 200);
+        setLocation(350, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        getContentPane().setBackground(Color.BLACK);
-
-        l1 = new JLabel("Bienvenue sur l'ATM");
-        l1.setFont(new Font("Osward", Font.BOLD, 30));
-        l1.setForeground(Color.CYAN);
-        l1.setBounds(270, 125, 450, 40);
-        add(l1);
-
-        l2 = new JLabel("Numéro de carte :");
-        l2.setFont(new Font("Raleway", Font.BOLD, 24));
-        l2.setForeground(Color.WHITE);
-        l2.setBounds(125, 200, 375, 30);
-        add(l2);
-
-        cardNumberField = new JTextField();
-        cardNumberField.setBounds(350, 200, 200, 30);
-        add(cardNumberField);
-
-        l3 = new JLabel("Code PIN :");
-        l3.setFont(new Font("Raleway", Font.BOLD, 24));
-        l3.setForeground(Color.WHITE);
-        l3.setBounds(125, 260, 375, 30);
-        add(l3);
-
-        pinField = new JPasswordField();
-        pinField.setBounds(350, 260, 200, 30);
-        add(pinField);
-
-        signupButton = new JButton("S'INSCRIRE");
-        signupButton.setBackground(new Color(204, 0, 0));  // Rouge foncé
-        signupButton.setForeground(Color.WHITE);
-        signupButton.setOpaque(true);
-        signupButton.setBorderPainted(false);
-        signupButton.setBounds(340, 300, 120, 30);
-        signupButton.addActionListener(this);
-        add(signupButton);
-
-        clearButton = new JButton("EFFACER");
-        clearButton.setBackground(new Color(51, 51, 51));  // Gris foncé
-        clearButton.setForeground(Color.WHITE);
-        clearButton.setOpaque(true);
-        clearButton.setBorderPainted(false);
-        clearButton.setBounds(460, 300, 100, 30);
-        clearButton.addActionListener(this);
-        add(clearButton);
-
-        loginButton = new JButton("SE CONNECTER");
-        loginButton.setBackground(new Color(0, 102, 204));  // Bleu
-        loginButton.setForeground(Color.WHITE);
-        loginButton.setOpaque(true);
-        loginButton.setBorderPainted(false);
-        loginButton.setBounds(340, 350, 220, 30);
-        loginButton.addActionListener(this);
-        add(loginButton);
-
-        // Exemple d'ajout d'un arrière-plan (optionnel)
-        ImageIcon icon = new ImageIcon(ClassLoader.getSystemResource("icon/arriereplan.jpg"));
-        Image img = icon.getImage().getScaledInstance(850, 480, Image.SCALE_DEFAULT);
-        ImageIcon scaledIcon = new ImageIcon(img);
-        JLabel background = new JLabel(scaledIcon);
-        background.setBounds(0, 0, 850, 480);
-        add(background);
-
+        setResizable(false);
+        
+        // Configuration du fond avec transparence pour une superposition avec l'image
         setLayout(null);
+        
+        // Panneau principal avec fond semi-transparent
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(null);
+        mainPanel.setBounds(0, 0, 850, 480);
+        mainPanel.setOpaque(false);
+        add(mainPanel);
+        
+        // Panneau pour le formulaire de connexion
+        JPanel loginPanel = new JPanel();
+        loginPanel.setLayout(null);
+        loginPanel.setBounds(450, 80, 350, 320);
+        loginPanel.setBackground(new Color(0, 0, 0, 180));  // Noir avec transparence
+        mainPanel.add(loginPanel);
+        
+        // Titre de bienvenue
+        welcomeLabel = new JLabel("Bienvenue sur l'ATM");
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        welcomeLabel.setForeground(Color.WHITE);
+        welcomeLabel.setBounds(50, 30, 300, 40);
+        loginPanel.add(welcomeLabel);
+        
+        // Icône de carte bancaire
+        ImageIcon cardIcon = new ImageIcon(ClassLoader.getSystemResource("icon/card.png"));
+        if (cardIcon.getIconWidth() > 0) {  // Vérifier que l'image existe
+            Image scaledCardImage = cardIcon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+            ImageIcon scaledCardIcon = new ImageIcon(scaledCardImage);
+            JLabel cardIconLabel = new JLabel(scaledCardIcon);
+            cardIconLabel.setBounds(50, 80, 60, 60);
+            loginPanel.add(cardIconLabel);
+        }
+        
+        // Ligne de séparation
+        JSeparator separator = new JSeparator();
+        separator.setBounds(50, 80, 250, 1);
+        separator.setForeground(new Color(200, 200, 200));
+        loginPanel.add(separator);
+        
+        // Labels et champs de texte
+        JLabel cardLabel = new JLabel("Numéro de carte");
+        cardLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        cardLabel.setForeground(Color.WHITE);
+        cardLabel.setBounds(125, 85, 200, 30);
+        loginPanel.add(cardLabel);
+        
+        cardNumberField = new JTextField();
+        cardNumberField.setBounds(125, 115, 175, 30);
+        cardNumberField.setFont(new Font("Arial", Font.PLAIN, 14));
+        cardNumberField.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        loginPanel.add(cardNumberField);
+        
+        JLabel pinLabel = new JLabel("Code PIN");
+        pinLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        pinLabel.setForeground(Color.WHITE);
+        pinLabel.setBounds(125, 155, 200, 30);
+        loginPanel.add(pinLabel);
+        
+        pinField = new JPasswordField();
+        pinField.setBounds(125, 185, 175, 30);
+        pinField.setFont(new Font("Arial", Font.PLAIN, 14));
+        pinField.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        loginPanel.add(pinField);
+        
+        // Boutons avec style moderne
+        loginButton = createStyledButton("SE CONNECTER", new Color(0, 102, 204), 125, 230, 175, 35);
+        loginButton.addActionListener(this);
+        loginPanel.add(loginButton);
+        
+        signupButton = createStyledButton("S'INSCRIRE", new Color(204, 0, 0), 125, 270, 82, 35);
+        signupButton.addActionListener(this);
+        loginPanel.add(signupButton);
+        
+        clearButton = createStyledButton("EFFACER", new Color(51, 51, 51), 218, 270, 82, 35);
+        clearButton.addActionListener(this);
+        loginPanel.add(clearButton);
+        
+        // Panneau pour le logo et informations bancaires sur la gauche
+        JPanel brandPanel = new JPanel();
+        brandPanel.setLayout(null);
+        brandPanel.setBounds(50, 80, 350, 320);
+        brandPanel.setOpaque(false);
+        mainPanel.add(brandPanel);
+        
+        // Logo de banque plus grand
+        ImageIcon bankIcon = new ImageIcon(ClassLoader.getSystemResource("icon/bank.png"));
+        if (bankIcon.getIconWidth() > 0) {
+            Image scaledBankImage = bankIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+            ImageIcon scaledBankIcon = new ImageIcon(scaledBankImage);
+            JLabel bankIconLabel = new JLabel(scaledBankIcon);
+            bankIconLabel.setBounds(115, 20, 120, 120);
+            brandPanel.add(bankIconLabel);
+        }
+        
+        // Nom de la banque
+        JLabel bankNameLabel = new JLabel("BANK MANAGEMENT SYSTEM");
+        bankNameLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        bankNameLabel.setForeground(Color.WHITE);
+        bankNameLabel.setBounds(35, 160, 300, 30);
+        brandPanel.add(bankNameLabel);
+        
+        // Slogan
+        JLabel sloganLabel = new JLabel("Votre sécurité est notre priorité");
+        sloganLabel.setFont(new Font("Arial", Font.ITALIC, 16));
+        sloganLabel.setForeground(Color.WHITE);
+        sloganLabel.setBounds(65, 200, 300, 30);
+        brandPanel.add(sloganLabel);
+        
+        // Image d'arrière-plan
+        ImageIcon backgroundIcon = new ImageIcon(ClassLoader.getSystemResource("icon/arriereplan.jpg"));
+        if (backgroundIcon.getIconWidth() > 0) {
+            Image backgroundImg = backgroundIcon.getImage().getScaledInstance(850, 480, Image.SCALE_DEFAULT);
+            ImageIcon scaledBackgroundIcon = new ImageIcon(backgroundImg);
+            JLabel background = new JLabel(scaledBackgroundIcon);
+            background.setBounds(0, 0, 850, 480);
+            add(background);
+        }
+        
         setVisible(true);
+    }
+    
+    // Méthode utilitaire pour créer des boutons stylisés
+    private JButton createStyledButton(String text, Color bgColor, int x, int y, int width, int height) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setBackground(bgColor);
+        button.setForeground(Color.WHITE);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setOpaque(true);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setBounds(x, y, width, height);
+        return button;
     }
 
     @Override
