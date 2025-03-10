@@ -10,7 +10,7 @@ public class sqlcon {
 
     public sqlcon() {
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/banksystem", "root", "root");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:8889/banksystem", "root", "root");
             statement = connection.createStatement();
         } catch (Exception e) {
             e.printStackTrace();

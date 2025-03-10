@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 public class TransactionHistory extends JFrame {
 
     String cardNumber;
+    String currency;
 
     public TransactionHistory(String cardNumber) {
         this.cardNumber = cardNumber;
@@ -47,6 +48,13 @@ public class TransactionHistory extends JFrame {
         try {
             sqlcon con = new sqlcon();
 
+            // D'abord, récupérer la devise du compte
+            String currencyQuery = "SELECT currency FROM account WHERE card_number = '" + cardNumber + "'";
+            ResultSet rsCurrency = con.statement.executeQuery(currencyQuery);
+            if (rsCurrency.next()) {
+                currency = rsCurrency.getString("currency");
+            }
+
             // Récupérer l'historique des transactions
             String query = "SELECT amount, type, transaction_date FROM transactions WHERE card_number = '" + cardNumber + "' ORDER BY transaction_date DESC";
             ResultSet rs = con.statement.executeQuery(query);
@@ -54,14 +62,14 @@ public class TransactionHistory extends JFrame {
                 double amount = rs.getDouble("amount");
                 String type = rs.getString("type");
                 String date = rs.getString("transaction_date");
-                model.addRow(new Object[]{amount + " €", type, date});
+                model.addRow(new Object[]{amount + " " + currency, type, date});
             }
 
             // Récupérer le solde actuel
             String balanceQuery = "SELECT balance FROM account WHERE card_number = '" + cardNumber + "'";
             ResultSet balanceRs = con.statement.executeQuery(balanceQuery);
             if (balanceRs.next()) {
-                balanceLabel.setText("Solde actuel : " + balanceRs.getDouble("balance") + " €");
+                balanceLabel.setText("Solde actuel : " + balanceRs.getDouble("balance") + " " + currency);
             }
         } catch (Exception e) {
             e.printStackTrace();

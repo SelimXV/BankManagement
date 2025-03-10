@@ -42,6 +42,10 @@ public class Accueil extends JFrame {
         // Bouton pour accéder à la page Deposit
         depositButton = new JButton("DÉPÔT");
         depositButton.setFont(new Font("Arial", Font.BOLD, 16));
+        depositButton.setBackground(new Color(0, 102, 204)); // Bleu
+        depositButton.setForeground(Color.WHITE);
+        depositButton.setOpaque(true);
+        depositButton.setBorderPainted(false);
         depositButton.setBounds(350, 200, 150, 40);
         depositButton.addActionListener(e -> {
             new Deposit(cardNumber).setVisible(true);
@@ -51,6 +55,10 @@ public class Accueil extends JFrame {
 
         WithdrawButton = new JButton("RETRAIT");
         WithdrawButton.setFont(new Font("Arial", Font.BOLD, 16));
+        WithdrawButton.setBackground(new Color(0, 102, 204)); // Bleu
+        WithdrawButton.setForeground(Color.WHITE);
+        WithdrawButton.setOpaque(true);
+        WithdrawButton.setBorderPainted(false);
         WithdrawButton.setBounds(350, 240, 150, 40);
         WithdrawButton.addActionListener(e -> {
             new Withdraw(cardNumber).setVisible(true);
@@ -58,10 +66,13 @@ public class Accueil extends JFrame {
         });
         add(WithdrawButton);
 
-
         // Bouton "Infos du compte"
         AccountInfoButton = new JButton("Infos du compte");
         AccountInfoButton.setFont(new Font("Arial", Font.BOLD, 16));
+        AccountInfoButton.setBackground(new Color(51, 51, 51)); // Gris foncé
+        AccountInfoButton.setForeground(Color.WHITE);
+        AccountInfoButton.setOpaque(true);
+        AccountInfoButton.setBorderPainted(false);
         AccountInfoButton.setBounds(350, 280, 150, 40);
         AccountInfoButton.addActionListener(e -> {
             new AccountInfo(cardNumber).setVisible(true);
@@ -72,21 +83,23 @@ public class Accueil extends JFrame {
         // Bouton "Historique des transactions"
         historyButton = new JButton("Historique");
         historyButton.setFont(new Font("Arial", Font.BOLD, 16));
+        historyButton.setBackground(new Color(51, 51, 51)); // Gris foncé
+        historyButton.setForeground(Color.WHITE);
+        historyButton.setOpaque(true);
+        historyButton.setBorderPainted(false);
         historyButton.setBounds(350, 360, 150, 40);
         historyButton.addActionListener(e -> {
             new TransactionHistory(cardNumber).setVisible(true);
         });
         add(historyButton);
 
-
-
-
-
-
-
         // Bouton de déconnexion
         logoutButton = new JButton("Déconnexion");
         logoutButton.setFont(new Font("Arial", Font.BOLD, 16));
+        logoutButton.setBackground(new Color(204, 0, 0)); // Rouge foncé
+        logoutButton.setForeground(Color.WHITE);
+        logoutButton.setOpaque(true);
+        logoutButton.setBorderPainted(false);
         logoutButton.setBounds(350, 400, 150, 40);
         logoutButton.addActionListener(e -> {
             new Login();
@@ -100,10 +113,11 @@ public class Accueil extends JFrame {
     private void updateBalance() {
         try {
             sqlcon con = new sqlcon();
-            String query = "SELECT balance FROM account WHERE card_number = '" + cardNumber + "'";
+            String query = "SELECT balance, currency FROM account WHERE card_number = '" + cardNumber + "'";
             ResultSet rs = con.statement.executeQuery(query);
             if (rs.next()) {
-                balanceLabel.setText("Solde : " + rs.getDouble("balance") + " €");
+                String currency = rs.getString("currency");
+                balanceLabel.setText("Solde : " + rs.getDouble("balance") + " " + currency);
             }
         } catch (Exception e) {
             e.printStackTrace();

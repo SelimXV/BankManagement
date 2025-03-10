@@ -11,6 +11,8 @@ public class Withdraw extends JFrame implements ActionListener {
     TextField textField;
     JButton withdrawButton, cancelButton;
     String cardNumber; // identifiant du compte connecté
+    JLabel amountLabel;
+    String currency;
 
     // Le constructeur reçoit le numéro de carte du compte connecté
     public Withdraw(String cardNumber) {
@@ -24,12 +26,25 @@ public class Withdraw extends JFrame implements ActionListener {
         l3.setBounds(0, 0, 1550, 830);
         add(l3);
 
-        // Label d'instruction
-        JLabel label1 = new JLabel("Veuillez insérer le montant à retirer");
-        label1.setForeground(Color.WHITE);
-        label1.setFont(new Font("System", Font.BOLD, 16));
-        label1.setBounds(460, 180, 400, 35);
-        l3.add(label1);
+        // Récupérer la devise du compte
+        try {
+            sqlcon con = new sqlcon();
+            String query = "SELECT currency FROM account WHERE card_number = '" + cardNumber + "'";
+            ResultSet rs = con.statement.executeQuery(query);
+            if (rs.next()) {
+                currency = rs.getString("currency");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            currency = "???";
+        }
+
+        // Label d'instruction avec la devise
+        amountLabel = new JLabel("Veuillez insérer le montant à retirer (" + currency + ")");
+        amountLabel.setForeground(Color.WHITE);
+        amountLabel.setFont(new Font("System", Font.BOLD, 16));
+        amountLabel.setBounds(460, 180, 400, 35);
+        l3.add(amountLabel);
 
         // Champ de saisie du montant
         textField = new TextField();
@@ -42,16 +57,20 @@ public class Withdraw extends JFrame implements ActionListener {
         // Bouton "RETIRER"
         withdrawButton = new JButton("RETIRER");
         withdrawButton.setBounds(700, 362, 150, 35);
-        withdrawButton.setBackground(new Color(65,125,128));
+        withdrawButton.setBackground(new Color(0, 102, 204));  // Bleu
         withdrawButton.setForeground(Color.WHITE);
+        withdrawButton.setOpaque(true);
+        withdrawButton.setBorderPainted(false);
         withdrawButton.addActionListener(this);
         l3.add(withdrawButton);
 
         // Bouton "ANNULER"
         cancelButton = new JButton("ANNULER");
         cancelButton.setBounds(700, 412, 150, 35);
-        cancelButton.setBackground(new Color(65,125,128));
+        cancelButton.setBackground(new Color(204, 0, 0));  // Rouge foncé
         cancelButton.setForeground(Color.WHITE);
+        cancelButton.setOpaque(true);
+        cancelButton.setBorderPainted(false);
         cancelButton.addActionListener(this);
         l3.add(cancelButton);
 
@@ -63,7 +82,7 @@ public class Withdraw extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == withdrawButton) { // Bouton RETIRER
+        if(e.getSource() == withdrawButton) {
             String amountText = textField.getText();
             if(amountText.equals("") || amountText == null) {
                 JOptionPane.showMessageDialog(null, "Veuillez entrer un montant.");
@@ -71,35 +90,50 @@ public class Withdraw extends JFrame implements ActionListener {
             }
             try {
                 double amount = Double.parseDouble(amountText);
-                sqlcon con = new sqlcon();
-
-                // Vérifier le solde actuel pour s'assurer qu'il est suffisant
-                String queryBalance = "SELECT balance FROM account WHERE card_number = '" + cardNumber + "'";
-                ResultSet rs = con.statement.executeQuery(queryBalance);
-                double currentBalance = 0;
-                if(rs.next()) {
-                    currentBalance = rs.getDouble("balance");
-                }
-                if(amount > currentBalance) {
-                    JOptionPane.showMessageDialog(null, "Solde insuffisant !");
+                if (amount <= 0) {
+                    JOptionPane.showMessageDialog(null, "Le montant doit être supérieur à 0.");
                     return;
                 }
+                
+                sqlcon con = new sqlcon();
+                try {
+                    // Vérifier le solde actuel pour s'assurer qu'il est suffisant
+                    String queryBalance = "SELECT balance FROM account WHERE card_number = ?";
+                    java.sql.PreparedStatement pstmt = con.connection.prepareStatement(queryBalance);
+                    pstmt.setString(1, cardNumber);
+                    ResultSet rs = pstmt.executeQuery();
+                    
+                    double currentBalance = 0;
+                    if(rs.next()) {
+                        currentBalance = rs.getDouble("balance");
+                    }
+                    
+                    if(amount > currentBalance) {
+                        JOptionPane.showMessageDialog(null, "Solde insuffisant !\nSolde actuel : " + currentBalance + " " + currency);
+                        return;
+                    }
 
-                // Insertion de la transaction de retrait dans la table transactions
-                String insertQuery = "INSERT INTO transactions (card_number, amount, type) VALUES ('" + cardNumber + "', " + amount + ", 'withdraw')";
-                con.statement.executeUpdate(insertQuery);
+                    // Enregistrer seulement la transaction - le trigger dans MySQL s'occupera de mettre à jour le solde
+                    String insertQuery = "INSERT INTO transactions (card_number, amount, type) VALUES (?, ?, 'withdraw')";
+                    pstmt = con.connection.prepareStatement(insertQuery);
+                    pstmt.setString(1, cardNumber);
+                    pstmt.setDouble(2, amount);
+                    pstmt.executeUpdate();
 
-                // Mise à jour du solde dans la table account
-                String updateQuery = "UPDATE account SET balance = balance - " + amount + " WHERE card_number = '" + cardNumber + "'";
-                con.statement.executeUpdate(updateQuery);
+                    JOptionPane.showMessageDialog(null, "Retrait de " + amount + " " + currency + " effectué avec succès !");
+                    setVisible(false);
+                    new Accueil(cardNumber);
 
-                JOptionPane.showMessageDialog(null, "Retrait effectué avec succès !");
-                setVisible(false);
-                new Accueil(cardNumber);
-            } catch(Exception ex) {
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Erreur lors du retrait : " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "Montant invalide. Veuillez entrer un nombre valide.");
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
-        } else if(e.getSource() == cancelButton) { // Bouton ANNULER
+        } else if(e.getSource() == cancelButton) {
             setVisible(false);
             new Accueil(cardNumber);
         }

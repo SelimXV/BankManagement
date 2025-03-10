@@ -11,6 +11,7 @@ public class Signup2 extends JFrame implements ActionListener {
     JRadioButton r1, r2, r3, r4;
     JCheckBox c1, c2, c3, c4, c5, c6;
     JButton s, c;
+    JComboBox<String> currencyComboBox;
     String formno;
     String cardNumber;
     String pin;
@@ -144,66 +145,80 @@ public class Signup2 extends JFrame implements ActionListener {
         l10.setBounds(400, 330, 200, 30);
         add(l10);
 
+        // Section : Devise du compte
+        JLabel currencyLabel = new JLabel("Devise du compte :");
+        currencyLabel.setFont(new Font("Raleway", Font.BOLD, 18));
+        currencyLabel.setForeground(Color.WHITE);
+        currencyLabel.setBounds(100, 380, 200, 30);
+        add(currencyLabel);
+
+        String[] currencies = {"EUR", "USD", "GBP", "CHF", "JPY"};
+        currencyComboBox = new JComboBox<>(currencies);
+        currencyComboBox.setBackground(Color.WHITE);
+        currencyComboBox.setBounds(400, 380, 100, 30);
+        add(currencyComboBox);
+
         // Section : Services Requis
         JLabel l11  = new JLabel("Services Requis");
         l11.setFont(new Font("Raleway", Font.BOLD, 18));
         l11.setForeground(Color.WHITE);
-        l11.setBounds(100, 400, 200, 30);
+        l11.setBounds(100, 420, 200, 30);
         add(l11);
         c1 = new JCheckBox("Relevé de compte électronique");
         c1.setFont(new Font("Raleway", Font.BOLD, 14));
         c1.setBackground(Color.BLACK);
         c1.setForeground(Color.WHITE);
-        c1.setBounds(100, 440, 300, 30);
+        c1.setBounds(100, 460, 300, 30);
         add(c1);
         c2 = new JCheckBox("Carte de crédit");
         c2.setFont(new Font("Raleway", Font.BOLD, 14));
         c2.setBackground(Color.BLACK);
         c2.setForeground(Color.WHITE);
-        c2.setBounds(450, 440, 200, 30);
+        c2.setBounds(450, 460, 200, 30);
         add(c2);
         c3 = new JCheckBox("Chéquier");
         c3.setFont(new Font("Raleway", Font.BOLD, 14));
         c3.setBackground(Color.BLACK);
         c3.setForeground(Color.WHITE);
-        c3.setBounds(100, 520, 200, 30);
+        c3.setBounds(100, 510, 200, 30);
         add(c3);
         c4 = new JCheckBox("Assurance compte");
         c4.setFont(new Font("Raleway", Font.BOLD, 14));
         c4.setBackground(Color.BLACK);
         c4.setForeground(Color.WHITE);
-        c4.setBounds(450, 520, 200, 30);
+        c4.setBounds(450, 510, 200, 30);
         add(c4);
         c5 = new JCheckBox("Accès mobile banking");
         c5.setFont(new Font("Raleway", Font.BOLD, 14));
         c5.setBackground(Color.BLACK);
         c5.setForeground(Color.WHITE);
-        c5.setBounds(100, 600, 200, 30);
+        c5.setBounds(100, 560, 200, 30);
         add(c5);
         c6 = new JCheckBox("Alertes de soldes");
         c6.setFont(new Font("Raleway", Font.BOLD, 14));
         c6.setBackground(Color.BLACK);
         c6.setForeground(Color.WHITE);
-        c6.setBounds(450, 600, 400, 30);
+        c6.setBounds(450, 560, 400, 30);
         add(c6);
         JCheckBox c7 = new JCheckBox("Je confirme que les informations fournies sont correctes", true);
         c7.setFont(new Font("Raleway", Font.BOLD, 12));
         c7.setBackground(Color.BLACK);
         c7.setForeground(Color.WHITE);
-        c7.setBounds(100, 650, 400, 30);
+        c7.setBounds(100, 610, 400, 30);
         add(c7);
 
-        // Boutons SUIVANT et ANNULER
+        // Boutons SUIVANT et ANNULER avec nouveau style
         s = new JButton("SUIVANT");
-        s.setBackground(Color.BLACK);
+        s.setBackground(new Color(0, 102, 204)); // Bleu
         s.setForeground(Color.WHITE);
         s.setOpaque(true);
         s.setBorderPainted(false);
         s.setBounds(650, 650, 100, 30);
         s.addActionListener(this);
         add(s);
+
         c = new JButton("ANNULER");
-        c.setBackground(Color.BLACK);
+        c.setBackground(new Color(204, 0, 0)); // Rouge foncé
         c.setForeground(Color.WHITE);
         c.setOpaque(true);
         c.setBorderPainted(false);
@@ -243,6 +258,7 @@ public class Signup2 extends JFrame implements ActionListener {
                 accountType = "Compte-titre";
             }
             accountType = accountType.replace("'", "''");
+            String currency = (String) currencyComboBox.getSelectedItem();
             // Récupérer les services sélectionnés
             int eStatement = c1.isSelected() ? 1 : 0;
             int creditCard = c2.isSelected() ? 1 : 0;
@@ -253,8 +269,8 @@ public class Signup2 extends JFrame implements ActionListener {
 
             try {
                 sqlcon c1 = new sqlcon();
-                String query = "INSERT INTO account (formno, card_number, pin, account_type, e_statement, credit_card, chequebook, account_insurance, mobile_banking, balance_alerts) " +
-                        "VALUES ('" + formno + "', '" + cardNumber + "', '" + pin + "', '" + accountType + "', " + eStatement + ", " + creditCard + ", " + chequebook + ", " + accountInsurance + ", " + mobileBanking + ", " + balanceAlerts + ")";
+                String query = "INSERT INTO account (formno, card_number, pin, account_type, currency, e_statement, credit_card, chequebook, account_insurance, mobile_banking, balance_alerts) " +
+                        "VALUES ('" + formno + "', '" + cardNumber + "', '" + pin + "', '" + accountType + "', '" + currency + "', " + eStatement + ", " + creditCard + ", " + chequebook + ", " + accountInsurance + ", " + mobileBanking + ", " + balanceAlerts + ")";
                 c1.statement.executeUpdate(query);
                 JOptionPane.showMessageDialog(null, "Compte créé avec succès !\nNuméro de carte : " + cardNumber + "\nCode PIN : " + pin);
                 setVisible(false);

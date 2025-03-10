@@ -11,6 +11,11 @@ public class Login extends JFrame implements ActionListener {
     JPasswordField pinField;
     JButton signupButton, clearButton, loginButton;
 
+    private static final String ADMIN_CARD = "192837465";
+    private static final String ADMIN_PIN = "3482";
+    private static final int MAX_LOGIN_ATTEMPTS = 3;
+    private int loginAttempts = 0;
+
     public Login() {
         setTitle("Bank Management System - Login");
         setLayout(null);
@@ -46,22 +51,28 @@ public class Login extends JFrame implements ActionListener {
         add(pinField);
 
         signupButton = new JButton("S'INSCRIRE");
-        signupButton.setBackground(Color.RED);
+        signupButton.setBackground(new Color(204, 0, 0));  // Rouge foncé
         signupButton.setForeground(Color.WHITE);
+        signupButton.setOpaque(true);
+        signupButton.setBorderPainted(false);
         signupButton.setBounds(340, 300, 120, 30);
         signupButton.addActionListener(this);
         add(signupButton);
 
         clearButton = new JButton("EFFACER");
-        clearButton.setBackground(Color.BLACK);
+        clearButton.setBackground(new Color(51, 51, 51));  // Gris foncé
         clearButton.setForeground(Color.WHITE);
+        clearButton.setOpaque(true);
+        clearButton.setBorderPainted(false);
         clearButton.setBounds(460, 300, 100, 30);
         clearButton.addActionListener(this);
         add(clearButton);
 
         loginButton = new JButton("SE CONNECTER");
-        loginButton.setBackground(Color.BLACK);
+        loginButton.setBackground(new Color(0, 102, 204));  // Bleu
         loginButton.setForeground(Color.WHITE);
+        loginButton.setOpaque(true);
+        loginButton.setBorderPainted(false);
         loginButton.setBounds(340, 350, 220, 30);
         loginButton.addActionListener(this);
         add(loginButton);
@@ -87,21 +98,48 @@ public class Login extends JFrame implements ActionListener {
             cardNumberField.setText("");
             pinField.setText("");
         } else if (e.getSource() == loginButton) {
+            if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+                JOptionPane.showMessageDialog(null, "Compte temporairement bloqué. Veuillez réessayer plus tard.");
+                return;
+            }
+
             String cardNumber = cardNumberField.getText();
             String pin = new String(pinField.getPassword());
+
+            // Vérifier si c'est une connexion admin
+            if (cardNumber.equals(ADMIN_CARD) && pin.equals(ADMIN_PIN)) {
+                loginAttempts = 0;
+                new AdminInterface();
+                setVisible(false);
+                return;
+            }
+
             try {
                 sqlcon c = new sqlcon();
-                String query = "SELECT * FROM account WHERE card_number = '" + cardNumber + "' AND pin = '" + pin + "'";
+                String query = "SELECT * FROM account WHERE card_number = '" + cardNumber + "' AND pin = '" + pin + "' AND is_closed = FALSE";
                 ResultSet rs = c.statement.executeQuery(query);
+                
                 if (rs.next()) {
+                    loginAttempts = 0;
                     JOptionPane.showMessageDialog(null, "Connexion réussie !");
-                    // Par exemple, ouvrir la fenêtre Transactions (à adapter selon ton code)
                     new Accueil(cardNumber);
                     setVisible(false);
                 } else {
-                    JOptionPane.showMessageDialog(null, "Numéro de carte ou PIN incorrect !");
+                    // Vérifier si le compte existe mais est clôturé
+                    query = "SELECT is_closed FROM account WHERE card_number = '" + cardNumber + "'";
+                    rs = c.statement.executeQuery(query);
+                    if (rs.next() && rs.getBoolean("is_closed")) {
+                        JOptionPane.showMessageDialog(null, "Ce compte a été clôturé. Veuillez contacter votre agence pour plus d'informations.");
+                        return;
+                    }
+                    
+                    loginAttempts++;
+                    int remainingAttempts = MAX_LOGIN_ATTEMPTS - loginAttempts;
+                    JOptionPane.showMessageDialog(null, 
+                        "Numéro de carte ou PIN incorrect !\nTentatives restantes : " + remainingAttempts);
                 }
             } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Erreur de connexion à la base de données");
                 ex.printStackTrace();
             }
         }

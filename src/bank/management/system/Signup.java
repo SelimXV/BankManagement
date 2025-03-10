@@ -90,6 +90,10 @@ public class Signup extends JFrame implements ActionListener {
         add(textPostal);
 
         next = new JButton("SUIVANT");
+        next.setBackground(new Color(0, 102, 204)); // Bleu
+        next.setForeground(Color.WHITE);
+        next.setOpaque(true);
+        next.setBorderPainted(false);
         next.setBounds(350, 600, 100, 30);
         next.addActionListener(this);
         add(next);
