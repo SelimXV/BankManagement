@@ -9,7 +9,7 @@ public class Login extends JFrame implements ActionListener {
     
     JTextField cardNumberField;
     JPasswordField pinField;
-    JButton signupButton, clearButton, loginButton;
+    JButton signupButton, clearButton, loginButton, adminButton;
     JLabel welcomeLabel;
 
     private static final String ADMIN_CARD = "192837465";
@@ -133,6 +133,19 @@ public class Login extends JFrame implements ActionListener {
         sloganLabel.setBounds(65, 200, 300, 30);
         brandPanel.add(sloganLabel);
         
+        // Bouton discret pour l'accès admin en bas à droite de la fenêtre
+        adminButton = new JButton("Espace Admin");
+        adminButton.setFont(new Font("Arial", Font.PLAIN, 12));
+        adminButton.setBackground(new Color(50, 50, 50));
+        adminButton.setForeground(Color.LIGHT_GRAY);
+        adminButton.setBorderPainted(false);
+        adminButton.setFocusPainted(false);
+        adminButton.setOpaque(true);
+        adminButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        adminButton.setBounds(680, 415, 120, 25);
+        adminButton.addActionListener(this);
+        mainPanel.add(adminButton);
+        
         // Image d'arrière-plan
         ImageIcon backgroundIcon = new ImageIcon(ClassLoader.getSystemResource("icon/arriereplan.jpg"));
         if (backgroundIcon.getIconWidth() > 0) {
@@ -212,6 +225,25 @@ public class Login extends JFrame implements ActionListener {
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, "Erreur de connexion à la base de données");
                 ex.printStackTrace();
+            }
+        } else if (e.getSource() == adminButton) {
+            // Création d'une boîte de dialogue de connexion admin
+            JPasswordField passwordField = new JPasswordField();
+            Object[] message = {
+                "Mot de passe administrateur:", passwordField
+            };
+            
+            int option = JOptionPane.showConfirmDialog(null, message, "Connexion administrateur", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            
+            if (option == JOptionPane.OK_OPTION) {
+                String password = new String(passwordField.getPassword());
+                
+                if (bank.management.system.PasswordUtil.verifyAdminPassword(password)) {
+                    new AdminInterface();
+                    setVisible(false);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Mot de passe incorrect", "Erreur d'authentification", JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
     }

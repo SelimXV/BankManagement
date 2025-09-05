@@ -8,7 +8,7 @@ public class Accueil extends JFrame {
 
     String cardNumber;
     JLabel balanceLabel;
-    JButton depositButton, withdrawButton, accountInfoButton, historyButton, logoutButton;
+    JButton depositButton, withdrawButton, accountInfoButton, historyButton, logoutButton, adminButton;
 
     public Accueil(String cardNumber) {
         this.cardNumber = cardNumber;
@@ -108,6 +108,40 @@ public class Accueil extends JFrame {
             setVisible(false);
         });
         mainPanel.add(logoutButton);
+        
+        // Bouton discret pour l'accès admin
+        adminButton = new JButton("Espace Admin");
+        adminButton.setFont(new Font("Arial", Font.PLAIN, 12));
+        adminButton.setBackground(new Color(50, 50, 50));
+        adminButton.setForeground(Color.LIGHT_GRAY);
+        adminButton.setBorderPainted(false);
+        adminButton.setFocusPainted(false);
+        adminButton.setOpaque(true);
+        adminButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        adminButton.setBounds(680, 560, 120, 25);
+        adminButton.addActionListener(e -> {
+            // Création d'une boîte de dialogue de connexion admin
+            JPasswordField passwordField = new JPasswordField();
+            Object[] message = {
+                "Mot de passe administrateur:", passwordField
+            };
+            
+            int option = JOptionPane.showConfirmDialog(null, message, "Connexion administrateur", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            
+            if (option == JOptionPane.OK_OPTION) {
+                String password = new String(passwordField.getPassword());
+                
+                // Pour ce contrôle sur table, on vérifie simplement si le mot de passe est "mdp123"
+                // Dans une vraie application, il faudrait vérifier le hash dans la base de données
+                if (password.equals("mdp123")) {
+                    new AdminInterface();
+                    setVisible(false);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Mot de passe incorrect", "Erreur d'authentification", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        add(adminButton);
 
         // Ajout de l'arrière-plan en dernier pour qu'il soit derrière tous les éléments
         add(backgroundLabel);

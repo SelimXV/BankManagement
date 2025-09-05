@@ -8,10 +8,12 @@ public class AdminInterface extends JFrame {
     
     private JLabel totalClientsLabel;
     private JLabel totalBalanceLabel;
+    private JLabel totalBeforeInterestLabel;
+    private JLabel totalAfterInterestLabel;
 
     public AdminInterface() {
         setTitle("Interface Administrateur");
-        setSize(600, 400);
+        setSize(600, 500); // Augmenté la hauteur pour les nouveaux composants
         setLocation(450, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         getContentPane().setBackground(Color.BLACK);
@@ -37,6 +39,44 @@ public class AdminInterface extends JFrame {
         totalBalanceLabel.setForeground(Color.WHITE);
         totalBalanceLabel.setBounds(100, 150, 400, 30);
         add(totalBalanceLabel);
+        
+        // Labels pour afficher les montants avant et après intérêts
+        totalBeforeInterestLabel = new JLabel("Montant total avant intérêts : 0.00 €");
+        totalBeforeInterestLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        totalBeforeInterestLabel.setForeground(Color.WHITE);
+        totalBeforeInterestLabel.setBounds(100, 200, 400, 30);
+        add(totalBeforeInterestLabel);
+        
+        totalAfterInterestLabel = new JLabel("Montant total après intérêts : 0.00 €");
+        totalAfterInterestLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        totalAfterInterestLabel.setForeground(Color.WHITE);
+        totalAfterInterestLabel.setBounds(100, 240, 400, 30);
+        add(totalAfterInterestLabel);
+        
+        // Bouton pour appliquer les intérêts
+        JButton applyInterestButton = new JButton("Ajouter les intérêts annuels");
+        applyInterestButton.setBackground(new Color(0, 102, 204)); // Bleu
+        applyInterestButton.setForeground(Color.WHITE);
+        applyInterestButton.setOpaque(true);
+        applyInterestButton.setBorderPainted(false);
+        applyInterestButton.setBounds(150, 290, 300, 40);
+        applyInterestButton.addActionListener(e -> applyInterest());
+        add(applyInterestButton);
+        
+        // Bouton pour générer le hash du mot de passe admin
+        JButton generateHashButton = new JButton("Générer Hash MDP");
+        generateHashButton.setBackground(new Color(0, 153, 51)); // Vert
+        generateHashButton.setForeground(Color.WHITE);
+        generateHashButton.setOpaque(true);
+        generateHashButton.setBorderPainted(false);
+        generateHashButton.setBounds(125, 350, 160, 30);
+        generateHashButton.addActionListener(e -> {
+            PasswordUtil.printAdminPasswordHash();
+            JOptionPane.showMessageDialog(null, 
+                "Le hash BCrypt du mot de passe admin a été généré et affiché dans la console.",
+                "Hash généré", JOptionPane.INFORMATION_MESSAGE);
+        });
+        add(generateHashButton);
 
         // Bouton de déconnexion avec nouveau style
         JButton logoutButton = new JButton("Déconnexion");
@@ -44,7 +84,7 @@ public class AdminInterface extends JFrame {
         logoutButton.setForeground(Color.WHITE);
         logoutButton.setOpaque(true);
         logoutButton.setBorderPainted(false);
-        logoutButton.setBounds(250, 300, 120, 30);
+        logoutButton.setBounds(325, 350, 160, 30);
         logoutButton.addActionListener(e -> {
             new Login();
             dispose();
@@ -53,13 +93,14 @@ public class AdminInterface extends JFrame {
 
         // Ajouter un fond noir avec une bordure
         ImageIcon backgroundIcon = new ImageIcon(ClassLoader.getSystemResource("icon/backbg.png"));
-        Image backgroundImage = backgroundIcon.getImage().getScaledInstance(600, 400, Image.SCALE_DEFAULT);
+        Image backgroundImage = backgroundIcon.getImage().getScaledInstance(600, 500, Image.SCALE_DEFAULT);
         ImageIcon scaledBackgroundIcon = new ImageIcon(backgroundImage);
         JLabel backgroundLabel = new JLabel(scaledBackgroundIcon);
-        backgroundLabel.setBounds(0, 0, 600, 400);
+        backgroundLabel.setBounds(0, 0, 600, 500);
         add(backgroundLabel);
 
         loadAdminData();
+        updateTotalBeforeInterestLabel(); // Afficher le montant total avant intérêts au démarrage
         setVisible(true);
     }
 
@@ -88,6 +129,62 @@ public class AdminInterface extends JFrame {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Erreur lors du chargement des données administrateur");
             e.printStackTrace();
+        }
+    }
+    
+    // Méthode pour afficher le montant total avant intérêts
+    private void updateTotalBeforeInterestLabel() {
+        try {
+            double totalBefore = calculateTotalAmount();
+            totalBeforeInterestLabel.setText("Montant total avant intérêts : " + String.format("%.2f €", totalBefore));
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erreur lors du calcul du montant total");
+        }
+    }
+    
+    // Méthode pour calculer le montant total de tous les comptes
+    private double calculateTotalAmount() {
+        double total = 0;
+        try {
+            sqlcon c = new sqlcon();
+            ResultSet rs = c.statement.executeQuery("SELECT SUM(balance) AS total FROM account WHERE is_closed = FALSE");
+            if (rs.next()) {
+                total = rs.getDouble("total");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return total;
+    }
+    
+
+    private void applyInterest() {
+        try {
+
+            double beforeAmount = calculateTotalAmount();
+            
+            sqlcon c = new sqlcon();
+            c.statement.executeUpdate("UPDATE account SET balance = balance + (balance * interest_rate / 100)");
+            
+            double afterAmount = calculateTotalAmount();
+            
+
+            loadAdminData();
+            
+
+            String message = "Montant total avant intérêts : " + String.format("%.2f €", beforeAmount) + 
+                             "\nMontant total après intérêts : " + String.format("%.2f €", afterAmount);
+            
+            JOptionPane.showMessageDialog(this, message, "Résultats de l'application des intérêts", JOptionPane.INFORMATION_MESSAGE);
+            
+
+            totalBeforeInterestLabel.setText("Montant total avant intérêts : " + String.format("%.2f €", beforeAmount));
+            totalAfterInterestLabel.setText("Montant total après intérêts : " + String.format("%.2f €", afterAmount));
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erreur lors de l'application des intérêts: " + e.getMessage());
         }
     }
 
